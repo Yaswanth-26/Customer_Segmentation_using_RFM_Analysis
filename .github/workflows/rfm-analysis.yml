@@ -1,0 +1,35 @@
+name: RFM Analysis CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v2
+    
+    - name: Set up Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: '3.9'
+    
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+    
+    - name: Check code formatting
+      run: |
+        pip install black
+        black --check .
+        
+    - name: Run test file structure
+      run: |
+        # Simple test to check if essential modules exist
+        python -c "import os; assert os.path.isdir('src'), 'src directory missing'"
+        python -c "import os; assert os.path.isfile('src/rfm_analysis.py'), 'rfm_analysis.py missing'"
