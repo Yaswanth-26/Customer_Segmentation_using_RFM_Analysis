@@ -28,14 +28,14 @@ jobs:
         pip install black
         black .
         
-    - name: Commit formatted code
-      if: github.event_name == 'push'
+    - name: Check for code changes after formatting
       run: |
-        git config --local user.email "action@github.com"
-        git config --local user.name "GitHub Action"
-        git add .
-        git diff --quiet && git diff --staged --quiet || git commit -m "Apply automatic formatting"
-        git push
+        if [ -n "$(git status --porcelain)" ]; then
+          echo "⚠️ Code was reformatted. Consider running Black locally before pushing."
+          git status
+        else
+          echo "✅ Code formatting is correct."
+        fi
         
     - name: Run test file structure
       run: |
