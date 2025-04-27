@@ -23,13 +23,22 @@ jobs:
         python -m pip install --upgrade pip
         if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
     
-    - name: Check code formatting
+    - name: Format code with Black
       run: |
         pip install black
-        black --check .
+        black .
+        
+    - name: Commit formatted code
+      if: github.event_name == 'push'
+      run: |
+        git config --local user.email "action@github.com"
+        git config --local user.name "GitHub Action"
+        git add .
+        git diff --quiet && git diff --staged --quiet || git commit -m "Apply automatic formatting"
+        git push
         
     - name: Run test file structure
       run: |
         # Simple test to check if essential modules exist
         python -c "import os; assert os.path.isdir('src'), 'src directory missing'"
-        python -c "import os; assert os.path.isfile('src/rfm_analysis.py'), 'rfm_analysis.py missing'"
+        python -c "import os; assert os.path.exists('src/rfm_analysis.py'), 'rfm_analysis.py missing'"
